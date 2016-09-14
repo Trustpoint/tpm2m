@@ -1,0 +1,65 @@
+/**
+ * Creator note: 
+ * 
+ * As of September 30th, 2014 the TrustPoint M2M Parser outputs the 
+ * following parsings for the Digicert files: 
+ * 
+ * RSA: "NFC Forum RSA Test M2M EE 1.m2m" 
+ * ECC: "NFC Forum EC Test M2M EE 1.m2m"
+ */
+
+// RSA Certificate
+
+M2MCertificate [APPLICATION 20] SEQUENCE {
+    [0] tbsCertificate TBSCertificate: 
+      TBSCertificate SEQUENCE {
+        [ 1] serialNumber OCTET STRING:     #034f3f184941b948a47f3d59ee625f09
+        [ 2] cAAlgorithm OBJECT IDENTIFIER: 2.16.840.1.114513.1.8
+        [ 4] issuer Name: 
+          Name SEQUENCE {
+            [0] country PrintableString: US
+            [1] organization UTF8String: NFC Forum Test RSA CA
+          }
+        [ 5] validFrom OCTET STRING: #5418aeda
+        [ 6] validDuration OCTET STRING: #05a497a0
+        [ 7] subject Name: 
+          Name SEQUENCE {
+            [0] country PrintableString: US
+            [4] stateOrProvince UTF8String: UT
+            [1] organization UTF8String: NFC Forum RSA Test M2M EE 1
+          }
+        [10] pubKey OCTET STRING: #3082010a0282010100e93d3e174f587784c53a4b01c05d2f73cfec22cccd1fbcf1b1c5b49a118ce6b323640f28dfe1d5882fafaefde9bb9a20347c44347d69f431aeef5788d2eae2131e49e3b9fd6a94bce34afcf88c603baa8eadbc5e6bc558d1459064f9ff6f6157c472739e90b9a312a5de67176a03fba77981a6f89f1ca9c0733c67797ed6db766fc99abee0c8d3641d69a9c6fd1e6f33cee29344374146e9a8e3cb141163798fdd9217cf58d93e836ea735d5a7f642f203de097c1623eb855ab72d8133001426163e671c747db54629c0eaf37342cf16923fcad53b5caf2ceccb3876853ce003c3753fa72c1f399a9b5fa7a232792fbe38c995b55b9d105f3c0ac536d841068b0203010001
+        [13] keyUsage OCTET STRING: #a0
+        [18] extendedKeyUsage: 2.16.840.1.114513.29.37
+        [20] cRLDistribPoint: http://crl.nfctest.example.com/nfctestrsaca.crl
+      }
+    [1] cACalcValue OCTET STRING: #b6a683af9b20715210ca38d0daa647f48270dbf67edf3e043bfbd02265a035540d50540f877179d61349b9f872afa41646835f8353cf90049551941b89d79b3fc61b1aade00e8ba474a4342bdaaca5cd28afc9dd7c505127857224d0278a6e5c9ac4344b3fa36b7fd6e5e54d4d92fbcd717ad4d2fe73c2e62219d6a097970bb4f956aaa948501e4083137992eebcfa41308687f36dbe8cec54579c76de4de54a1d6e007ad22f83bee86cdef39a37b4bccd71d5b0a364c258b94d0b953dc3da5637874157c3ad7cec3367f3075fa1d8939b27f4062dfbe436f871aecdc6d2a3098793a1212ed192f6b128648ffe764c4d3176d64e6594db295400465395781a37
+}
+
+// ECC Certificate
+
+M2MCertificate [APPLICATION 20] SEQUENCE {
+    [0] tbsCertificate TBSCertificate: 
+      TBSCertificate SEQUENCE {
+        [ 1] serialNumber OCTET STRING:     #08ccf88cdcb365003b718cb557da7329
+        [ 2] cAAlgorithm OBJECT IDENTIFIER: 2.16.840.1.114513.1.9
+        [ 4] issuer Name: 
+          Name SEQUENCE {
+            [0] country PrintableString: US
+            [1] organization UTF8String: NFC Forum Test RSA CA
+          }
+        [ 5] validFrom OCTET STRING: #5418aeda
+        [ 6] validDuration OCTET STRING: #05a497a0
+        [ 7] subject Name: 
+          Name SEQUENCE {
+            [0] country PrintableString: US
+            [4] stateOrProvince UTF8String: UT
+            [1] organization UTF8String: NFC Forum EC Test M2M EE 1
+          }
+        [10] pubKey OCTET STRING: #0463b6e44af464dddb14e217741a5fc52af28e00922e4f4c45c7ca609d815103d5d46077f31c48295e57638bc5b87ad09e726bb189cd4b0506
+        [13] keyUsage OCTET STRING: #a0
+        [18] extendedKeyUsage: 2.16.840.1.114513.29.37
+        [20] cRLDistribPoint: http://crl.nfctest.example.com/nfctestrsaca.crl
+      }
+    [1] cACalcValue OCTET STRING: #06f07050d05cf8bd2700f65312f6125fcf5971c42f511a1135d9cdbb778c2f0c1b9d5f22b894e781d46a2ecc1c95a96642e85b528d1200e537fbf9c4b38408b744f3ae5c30ca66abda3446ff1749a4105b630765dc0f011a1409db14629208f6757fd8086722628b646a70615ac9d5e3209cab04d22c0db40d12d394c22e23f5ca651659a26391f00982cf47d3e3ce5baffbcf9864bc6656acd7e78ad212672adbe688baf14c98bf15dafaf40948b0f69a2c9d373d8c5cfbe7b5bf675266b7f86113274414f7bf0a75bdc5e107c688c7f600af92dbd2e5b91c6548092cb787f783c88288c765f6ce6e96a3e1328a91e323f5f9915d3ead9af608a498929f7ba6
+}

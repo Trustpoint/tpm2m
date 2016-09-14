@@ -1,0 +1,143 @@
+-- 
+-- Machine-to-Machine certificate format July 11, 2014
+-- 
+
+M2M-Certificate-Definition 
+    {joint-iso-ccitt (2) country (16) usa (840) us-company (1) 
+     nfc-forum (114513) modules (5) m2m-certificate (0)}
+
+-- Structure Must be DER encoded
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+-- The APPLICATION 20 tag is intended to make the M2M format apparent
+-- by inspecting the first octet of the encoding
+
+Certificate ::= [APPLICATION 20] IMPLICIT SEQUENCE {
+    tbsCertificate     TBSCertificate, -- To be signed certificate
+    cACalcValue        OCTET STRING -- Contains signature for a signed
+                       -- certificate or public key derivation value
+                       -- for an ECQV cert, see  REF _Ref266104269 \r \h A.2
+}
+
+TBSCertificate ::= SEQUENCE {
+    version            INTEGER {v1(0)} DEFAULT v1,
+    serialNumber       OCTET STRING (SIZE (1..20)),
+    cAAlgorithm        OBJECT IDENTIFIER OPTIONAL, -- Identifies
+                       -- CA algorithm, hash function, and
+                       -- optionally other required parameters 
+                       -- (e.g. In the case of ECC, the curve). 
+                       --
+                       -- Required for signature verification but may
+                       -- be omitted from the transmitted cert and
+                       -- filled in from the pKAlgorithm of the
+                       -- superior cert (provided not root cert) prior
+                       -- to signature verification.
+                       -- For omitting rules, see  REF _Ref266616575 \r \h A.3
+                       --
+    cAAlgParams        OCTET STRING OPTIONAL, -- Identifies
+                       -- CA algorithm parameters
+                       --
+                       -- This specification does not provide for
+                       -- omitting this field in transmission and
+                       -- subsequently replacing it from the superior
+                       -- certificate for signature verification
+                       --
+    issuer             Name OPTIONAL, -- Identifies
+                       -- issuer name
+                       --
+                       -- Required for signature verification but may
+                       -- be omitted from the transmitted cert and
+                       -- filled in from the subject field of the
+                       -- superior cert (provided not root cert) prior
+                       -- to signature verification
+                       --
+    validFrom          OCTET STRING (SIZE (4..5)) OPTIONAL,
+                       -- Unix time. If omitted no validity specified
+    validDuration      OCTET STRING (SIZE (1..4)) OPTIONAL,
+                       -- # of seconds. If omitted no expiry specified
+    subject            Name,
+    pKAlgorithm        OBJECT IDENTIFIER OPTIONAL, -- Default is 
+                       -- same as cAAlgorithm in this certificate.
+                       -- For omitting rules, see  REF _Ref266616575 \r \h A.3
+    pKAlgParams        OCTET STRING OPTIONAL,
+    pubKey             OCTET STRING OPTIONAL,
+                       -- Omit for an ECQV certificate, see  REF _Ref266104269 \r \h A.2
+    authKeyId          AuthKeyId OPTIONAL,
+    subjKeyId          OCTET STRING OPTIONAL,
+    keyUsage           OCTET STRING (SIZE (1)) OPTIONAL, -- Critical 
+                       -- One byte containing a bit string, 
+                       -- as described below
+    basicConstraints   INTEGER (0..7) OPTIONAL, -- If absent this is
+                       -- an end-entity cert; max intermed path length
+                       -- for CA certificate
+    certificatePolicy  OBJECT IDENTIFIER OPTIONAL, -- May use the
+                       -- current version of this policy 
+    subjectAltName     GeneralName OPTIONAL,
+    issuerAltName      GeneralName OPTIONAL,
+    extendedKeyUsage   OBJECT IDENTIFIER OPTIONAL,  
+    authInfoAccessOCSP IA5String OPTIONAL,-- OCSP responder URI
+    cRLDistribPointURI IA5String OPTIONAL,-- CRL distribution point URI
+    x509extensions     X509Extensions OPTIONAL,
+    ...
+}
+Name ::= SEQUENCE SIZE (1..4) OF AttributeValue
+
+AttributeValue ::= CHOICE { 
+    country            PrintableString (SIZE (2)),
+    organization       UTF8String (SIZE (1..32)),
+    organizationalUnit UTF8String (SIZE (1..32)),
+    distinguishedNameQualifier PrintableString (SIZE (1..32)),
+    stateOrProvince    UTF8String (SIZE (1..4)),
+    locality           UTF8String (SIZE (1..32)),
+    commonName         UTF8String (SIZE (1..32)),
+    serialNumber       PrintableString (SIZE (1..32)),
+    domainComponent    IA5String (SIZE (1..32)),
+    registeredId       OBJECT IDENTIFIER,
+    octetsName         OCTET STRING (SIZE (1..8))
+}
+AuthKeyId ::= SEQUENCE {
+    keyIdentifier      OCTET STRING OPTIONAL,
+    authCertIssuer     GeneralName OPTIONAL,
+    authCertSerialNum  OCTET STRING (SIZE(1..20)) OPTIONAL
+}
+X509Extensions ::= SEQUENCE OF Extension
+
+Extension ::= SEQUENCE {
+        extnID         OBJECT IDENTIFIER,
+        criticality    BOOLEAN DEFAULT FALSE,
+        extnValue      OCTET STRING
+}
+GeneralName ::= CHOICE {
+    rfc822Name         IA5String (SIZE (1..128)),
+    dNSName            IA5String (SIZE (1..128)),
+    directoryName      Name,
+    uniformResourceIdentifier IA5String (SIZE (1..128)),
+    iPAddress          OCTET STRING (SIZE (1..16)), 
+                       --4 octets for IPV4 16 octets for IPV6
+    registeredID       OBJECT IDENTIFIER
+}
+
+-- Notes:
+-- * The times are represented using UNIX time, i.e. # of seconds
+--   since the unix epoch: http://en.wikipedia.org/wiki/Unix_time
+--   The validFrom field permits 40-bit values to avoid problems in
+--   2038 (when 32-bit values won’t be enough).
+--
+-- * The keyUsage field conveys a single octet equal to the
+--   second octet of the DER encoding of the following BIT STRING
+--
+--   KeyUsage ::= BIT STRING {
+--       digitalSignature (0),
+--       nonRepudiation (1),
+--       keyEncipherment (2),
+--       dataEncipherment (3),
+--       keyAgreement (4),
+--       keyCertSign (5),
+--       Use keyCertSign also for an ECQV certificate issuer
+--       cRLSign (6)
+--       the last bit in the byte is always zero (7)
+--   }
+--
+
+END

@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY rfc2629 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2629.xml">
+<!ENTITY rfc5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
+]>
+
+<!-- Extra statement used by XSLT processors to control the output style. -->
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+
+<!-- Processing Instructions can be placed here but if you are editing
+     with XMLmind (and maybe other XML editors) they are better placed
+     after the rfc element start tag as shown below. -->
+
+<!-- Information about the document.
+     category values: std, bcp, info, exp, and historic
+     For Internet-Drafts, specify attribute "ipr".
+     (ipr values are: full3667, noModification3667, noDerivatives3667),
+     Also for Internet-Drafts, can specify values for
+     attributes "docName" and, if relevant, "iprExtract".  Note
+     that the value for iprExtract is the anchor attribute
+     value of a section (such as a MIB specification) that can be
+     extracted for separate publication, and is only
+     useful whenhe value of "ipr" is not "full3667". -->
+    <!-- TODO: verify which attributes are specified only
+               by the RFC editor.  It appears that attributes
+               "number", "obsoletes", "updates", and "seriesNo"
+               are specified by the RFC editor (and not by
+               the document author). -->
+<rfc category="std" ipr="noModificationTrust200902" docName="draft-ford-m2mcertificate-01.txt">
+    <!-- Processing Instructions- PIs (for a complete list and description,
+          see file http://xml.resource.org/authoring/README.html and below... -->
+
+    <!-- Some of the more generally applicable PIs that most I-Ds might want to use -->
+
+    <!-- Try to enforce the ID-nits conventions and DTD validity -->
+    <?rfc strict="yes" ?>
+
+    <!-- Items used when reviewing the document -->
+    <?rfc comments="no" ?>  <!-- Controls display of <cref> elements -->
+    <?rfc inline="no" ?>    <!-- When no, put comments at end in comments section,
+                                 otherwise, put inline -->
+    <?rfc editing="no" ?>   <!-- When yes, insert editing marks: editing marks consist of a
+                                 string such as <29> printed in the blank line at the
+                                 beginning of each paragraph of text. -->
+
+    <!-- Create Table of Contents (ToC) and set some options for it.
+         Note the ToC may be omitted for very short documents,but idnits insists on a ToC
+         if the document has more than 15 pages. -->
+   <?rfc toc="yes"?>
+   <?rfc tocompact="yes"?> <!-- If "yes" eliminates blank lines before main section entries. -->
+   <?rfc tocdepth="3"?>    <!-- Sets the number of levels of sections/subsections... in ToC -->
+
+    <!-- Choose the options for the references.
+         Some like symbolic tags in the references (and citations) and others prefer
+         numbers. The RFC Editor always uses symbolic tags.
+         The tags used are the anchor attributes of the references. -->
+    <?rfc symrefs="yes"?>
+    <?rfc sortrefs="yes" ?> <!-- If "yes", causes the references to be sorted in order of tags.
+                                 This doesn't have any effect unless symrefs is "yes" also. -->
+
+    <!-- These two save paper: Just setting compact to "yes" makes savings by not starting each
+         main section on a new page but does not omit the blank lines between list items.
+         If subcompact is also "yes" the blank lines between list items are also omitted. -->
+    <?rfc compact="yes" ?>
+    <?rfc subcompact="no" ?>
+    <!-- end of list of popular I-D processing instructions -->
+
+    <!-- ***** FRONT MATTER ***** -->
+<front>
+    <!-- The abbreviated title is used in the page header - it is only necessary if the
+         full title is longer than 42 characters -->
+    <title abbrev="The M2M Public Key Certificate Format">The Machine-to-Machine (M2M) Public Key
+        Certificate Format</title>
+
+    <author fullname="Jason Smith" initials="J." surname="Smith">
+        <organization abbrev="TrustPoint Innovation Technologies">TrustPoint Innovation
+            Technologies, Ltd.</organization>
+        <address>
+            <postal>
+                <street>450 Phillip Street</street>
+                <street>Suite 101</street>
+                <city>Waterloo</city>
+                <region>ON</region>
+                <code>N2L 5J2</code>
+                <country>CA</country>
+            </postal>
+            <email>jsmith@trustpointinnovation.com</email>
+        </address>
+    </author>
+
+    <author fullname="Warwick Ford" initials="W." surname="Ford">
+        <organization abbrev="TrustPoint Innovation Technologies">TrustPoint Innovation
+            Technologies, Ltd.</organization>
+        <address>
+            <postal>
+                <street>450 Phillip Street</street>
+                <street>Suite 101</street>
+                <city>Waterloo</city>
+                <region>ON</region>
+                <code>N2L 5J2</code>
+                <country>CA</country>
+            </postal>
+            <email>wford@wyltan.com</email>
+        </address>
+    </author>
+
+    <author fullname="Yuri Poeluev" initials="Y." surname="Poeluev">
+        <address>
+            <email>ypoeluev@gmail.com</email>
+        </address>
+    </author>
+
+    <date year="2016" />
+
+    <!-- Meta-data Declarations -->
+
+    <!-- WG name at the upperleft corner of the doc,
+         IETF fine for individual submissions.  You can also
+         omit this element in which case in defaults to "Network Working Group" -
+         a hangover from the ancient history of the IETF! -->
+    <workgroup>IETF</workgroup>
+
+    <abstract>
+        <t>The X.509 public key certificate format is overly verbose for Internet-of-Things (IoT)
+        constrained environments, where nodes with limited memory and networks with limited
+        bandwidth are not uncommon.  The Machine-to-Machine (M2M) certificate format is a pruned
+        down and encoding-optimized replacement for X.509, which reuses much of the X.509 semantics
+        but reduces certificate sizes by typically 40%.  We are proposing that IETF recognize the
+        M2M format as an optional replacement for X.509 in Internet applications including, but not
+        limited to, TLS and DTLS.</t>
+    </abstract>
+</front>
+
+<middle>
+    <section title="Introduction">
+        <t>The predominant public key certificate format has for many years been the X.509 format
+        [RFC5280].  X.509 was designed to be extremely flexible and open-ended, in an environment
+        of RSA and DSA signature technologies.  X.509 is not, however, a good certificate format
+        for Internet-of-Things constrained environments, where nodes with limited memory and
+        networks with limited bandwidth are not uncommon. With RSA and DSA technologies, overheads
+        in the certificate format were comparatively inconsequential because the large key and
+        signature fields were the dominant certificate components size-wise.  However, with the
+        much more efficient ECC technology used today, the certificate format overheads become a
+        very important factor in making certificates efficient enough for low bandwidth constrained
+        applications.  In essence, the X.509 certificate format is too verbose for these
+        applications.</t>
+        <t>There is a clear need for a more efficient certificate format than X.509.  Because many
+        fields are inherently variable-length, it still makes sense to use ASN.1 notation and
+        encoding for this new format, allowing us to borrow heavily from the X.509 model and to
+        reuse much of the X.509 semantics and some software.</t>
+        <t>The Machine-to-Machine (M2M) certificate format was designed to satisfy the above
+        objectives.  What was done was to strip down the X.509 format to eliminate features that
+        are not needed today, while optimizing the encoding.  The result is a certificate format
+        that typically reduces certificate size by about 40% compared with X.509.</t>
+        <t>The M2M format supports various digital signature technologies including ECDSA, RSA, and
+        ECQV [SEC4].  No particular technology is required by this specification and we use ECDSA
+        as the baseline for comparative certificate size calculations.</t>
+        <t>The M2M certificate format has been adopted by the NFC Forum for Near Field
+        Communications signatures, and published by that organization [NFC-SIG].  However, it is a
+        general purpose design which is equally applicable to Internet-of-Things applications.</t>
+        <t>We are proposing that IETF recognize the M2M format as an optional replacement for X.509
+        in Internet applications including, but not limited to, TLS and DTLS.  A companion
+        Internet-Draft addresses the use of the M2M format with TLS and DTLS [TLS-M2M].</t>
+        <t>This draft has been updated to address comments and feedback received based on the
+        original draft.  Changes were made to promote consistency in the formal ASN.1
+        specifications.  There are no significant changes from the previous version of this
+        draft.</t>
+    </section>
+
+    <section anchor="restrictions_to_x509" title="Restrictions Applied to the X.509 Model">
+        <t>The M2M certificate model restricts the X.509 model as follows:
+            <list style="symbols">
+                <t>Directory Name (DN) names are limited to using the RFC 5280 mandatory attributes
+                plus other attributes in common use, namely: country, organization, organizational
+                unit, distinguished name qualifier, state or province name, common name, serial
+                number, locality, domain component.  There can be only one of each, no more than 4
+                total, and no multi-level names.  M2M has also added an Object Identifier (OID)
+                option (may prove a useful identifier for CAs) and an OCTET STRING option (may
+                prove an efficient option for device identifiers).</t>
+                <t>DN character encodings are limited to one string type, usually UTF8String (which
+                a profile might limit to IA5 characters).</t>
+                <t>Modest length constraints are defined for all DN attributes.</t>
+                <t>Criticality flags for extensions are eliminated (criticality may be implied by
+                semantics).</t>
+                <t>The following built-in extensions are defined for end-entity certificates:
+                issuer key id, subject key id, key usage (first 7 bits only), certificate policies
+                (one OID, no qualifiers), subject alternative name, issuer alternative name,
+                extended key usage (one OID), authority information access (URI for OCSP responder
+                only).</t>
+                <t>The following additional built-in extension is defined for CA-certificates:
+                basic constraints.</t>
+                <t>While it is not anticipated that applications will require extensions other than
+                the built-in extensions noted above, there is a catch-all to optionally permit any
+                standard X.509 extension from RFC 5280 to be included.</t>
+            </list>
+        </t>
+    </section>
+
+    <section anchor="other_optimizations" title="Other Optimizations">
+        <t>An optional optimization known as "parameter inheritance" is also provided.  For
+        applications where a certificate is always accompanied in its transmission by its superior
+        certificate, we can eliminate the issuer field from the transmitted form of the certificate
+        (it is still included for signature generation and verification purposes).  Issuer name can
+        be inherited from the subject field of the superior certificate.  Therefore, this field is
+        made optional in the syntax in order to allow two variants of every certificate: the full
+        (to-be-signed) form and the transmitted form.</t>
+        <t>In addition, the M2M format adopts from SEC4 MES the use of Unix time (rather than ASN.1
+        time types) to represent validity period.  It also drops the redundant algorithm identifier
+        from the certificate outer structure and makes sundry miscellaneous optimizations.</t>
+    </section>
+
+    <section anchor="certificate_size_estimates" title="Certificate Size Estimates">
+        <t>Below are exemplary certificate size estimates for each of the formats M2M and X.509 (we
+        include SEC4 MES for the one case where it applies).  All sizes are for 224-bit ECC.  We
+        have used the following example cases (note EE=end-entity certificate):
+            <list style="symbols">
+                <t>EE Small case: ECDSA minimal data, one-component 8-character names and 7-bit key
+                usage extension.</t>
+                <t>EE Medium case: ECDSA more general example, with two-component 16-character
+                names and these extensions: 7-bit key usage, certificate policy OID, 20-character
+                OCSP URL, 10-character subject alternate name.</t>
+                <t>CA Certificate case: A certificate for an ECDSA Sub-CA ECDSA-signed by a root
+                CA.  Two-component 16-character names and extensions: 7-bit key usage, basic
+                constraints, 20-character OCSP URL.</t>
+            </list>
+        </t>
+        <figure anchor="certificate_sizes" align="center" title="Certificate Sizes in Bytes">
+            <artwork align="center">
+<![CDATA[
++-------------+-----------+----------+----------+
+|             | M2M with  |   M2M    |   X.509  |
+|             | parameter |          |          |
+|             |inheritance|          |          |
++-------------+-----------+----------+----------+
+|EE Small     |    136    |   155    |   241    |
+|EE Medium    |    189    |   218    |   364    |
+|CA Cert      |    N/A    |   207    |   338    |
++-------------+-----------+----------+----------+
+]]>
+            </artwork>
+        </figure>
+        <t>In summary, a standalone M2M EE certificate is roughly 140-to-220 bytes (compare
+        240-to-360 for X.509) and a two-certificate ECDSA chain is roughly 340-to-420 bytes
+        (compare 570-to-690 for X.509).</t>
+        <t>We assume Algorithm OIDs of the form 1.3.11111.1.1 (5 octets value field) with no
+        algorithm parameters and certificate serial numbers of 8 octets.</t>
+        <t>For more detail of the calculations leading to the above size comparisons see Appendix
+        A.</t>
+    </section>
+
+    <section anchor="certificate_format" title="Certificate Format">
+       <t>The M2M certificate format is defined using Abstract Syntax Notation One (ASN.1)
+       [X.680].</t>
+        <figure>
+            <artwork>
+<![CDATA[
+-- Machine-to-Machine certificate format
+--
+M2M-Certificate-Definition
+    {1 3 186 asn1-modules (5) m2m-certificate (0)}
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+
+Certificate ::= [APPLICATION 20] IMPLICIT SEQUENCE {
+    tbsCertificate  TBSCertificate,
+                    -- To be signed certificate.
+    caCalcValue     OCTET STRING
+                    -- Contains signature for a signed certificate
+                    -- or public key derivation value for an ECQV
+                    -- certificate.
+}
+-- The APPLICATION 20 tag is intended to make the M2M format apparent
+-- by inspecting the first byte of the encoding.
+
+TBSCertificate ::= SEQUENCE {
+    version         INTEGER {v1(0) } DEFAULT v1,
+    serialNumber    OCTET STRING (SIZE (1..20)),
+    caAlgorithm     OBJECT IDENTIFIER OPTIONAL,
+                    -- Identifies the CA algorithm, hash function &
+                    -- optionally other required parameters (e.g.,
+                    -- for ECC the curve).
+                    -- Required for signature verification but may
+                    -- be omitted from the transmitted cert and
+                    -- filled in from the pkAlgorithm of the
+                    -- superior cert (provided not root cert)
+                    -- prior to signature verification.
+    caAlgParams     OCTET STRING OPTIONAL,
+                    -- Identifies CA algorithm parameters.
+                    -- This specification does not provide for
+                    -- omitting this field in transmission and
+                    -- subsequently replacing it from the superior
+                    -- certificate for signature verification.
+    issuer          Name OPTIONAL,
+                    -- Required for signature verification but may
+                    -- be omitted from the transmitted cert and
+                    -- filled in from the subject field of the
+                    -- superior cert (provided not root cert) prior
+                    -- to signature verification.
+    validFrom       OCTET STRING (SIZE (4..5)) OPTIONAL,
+                    -- Unix time defining the time the certificate
+                    -- is valid from.
+                    -- If omitted no validity specified.
+    validDuration   OCTET STRING (SIZE (1..4)) OPTIONAL,
+                    -- Number of seconds the certificate is valid
+                    -- for, starting from the validFrom time.
+                    -- If omitted no expiry specified.
+    subject         Name,
+    pkAlgorithm     OBJECT IDENTIFIER OPTIONAL,
+                    -- Default is the same as caAlgorithm in this
+                    -- certificate.
+    pkAlgParams     OCTET STRING OPTIONAL,
+    pubKey          OCTET STRING OPTIONAL,
+                    -- Omit for an ECQV cert.
+    authKeyId       AuthKeyId OPTIONAL,
+    subjKeyId       OCTET STRING OPTIONAL,
+    keyUsage        OCTET STRING (SIZE (1)) OPTIONAL,
+                    -- Critical.
+                    -- One byte containing a bit string, as described
+                    -- below.
+    basicConstraints    INTEGER (0..7) OPTIONAL,
+                    -- Max intermed path length for CA cert.
+                    -- If omitted this is an end-entity cert.
+    certificatePolicy   OBJECT IDENTIFIER OPTIONAL,
+    subjectAltName  GeneralName OPTIONAL,
+    issuerAltName   GeneralName OPTIONAL,
+    extendedKeyUsage OBJECT IDENTIFIER OPTIONAL,
+    authInfoAccessOCSP  IA5String OPTIONAL,
+                        -- OCSP responder URI.
+    crlDistribPointURI  IA5String OPTIONAL,
+                        -- CRL distribution point URI.
+    x509Extensions  X509Extensions OPTIONAL,
+    ...
+}
+Name ::= SEQUENCE SIZE (1..4) OF AttributeValue
+
+AttributeValue ::= CHOICE {
+    country         PrintableString (SIZE (2)),
+    organization    UTF8String (SIZE (1..32)),
+    organizationalUnit  UTF8String (SIZE (1..32)),
+    distinguishedNameQualifier  PrintableString (SIZE (1..32)),
+    stateOrProvince UTF8String (SIZE (1..4)),
+    locality        UTF8String (SIZE (1..32)),
+    commonName      UTF8String (SIZE (1..32)),
+    serialNumber    PrintableString (SIZE (1..32)),
+    domainComponent IA5String (SIZE (1..32)),
+    registeredId    OBJECT IDENTIFIER,
+    octetsName      OCTET STRING (SIZE (1..8))
+}
+AuthKeyId ::= SEQUENCE {
+    keyIdentifier      OCTET STRING OPTIONAL,
+    authCertIssuer     GeneralName OPTIONAL,
+    authCertSerialNum  OCTET STRING (SIZE(1..20)) OPTIONAL
+}
+X509Extensions ::= SEQUENCE OF Extension
+
+Extension ::= SEQUENCE {
+    extnId         OBJECT IDENTIFIER,
+    criticality    BOOLEAN DEFAULT FALSE,
+    extnValue      OCTET STRING
+}
+GeneralName ::= CHOICE {
+    rfc822Name      IA5String (SIZE (1..128)),
+    dnsName         IA5String (SIZE (1..128)),
+    directoryName   Name,
+    uri             IA5String (SIZE (1..128)),
+    ipAddress       OCTET STRING (SIZE (1..16)),
+                    -- 4 octets for IPV4, 16 octets for IPV6
+    registeredId    OBJECT IDENTIFIER
+}
+-- Notes:
+-- * The times are represented using Unix time, i.e. number of
+-- seconds since the Unix epoch:
+--     http://en.wikipedia.org/wiki/Unix_time
+-- The validFrom field permits 40-bit values to avoid problems in
+-- 2038 (when 32-bit values won't be enough).
+--
+-- The keyUsage field conveys a single octet equal to the
+-- second octet of the DER encoding of the following BIT STRING:
+
+-- KeyUsage ::= BIT STRING {
+--     digitalSignature (0),
+--     nonRepudiation (1),
+--     keyEncipherment (2),
+--     dataEncipherment (3),
+--     keyAgreement (4),
+--     keyCertSign (5),
+--     -- Use keyCertSign also for an ECQV certificate issuer.
+--     crlSign (6)
+--     -- The last bit in the byte is always zero (7).
+-- }
+END
+]]>
+            </artwork>
+        </figure>
+    </section>
+
+    <section anchor="rules_for_omitting_algorithm_fields"
+        title="Rules For Omitting Algorithm Fields">
+        <t>Following are the rules defining when and how omitting algorithm fields is allowed.</t>
+        <section title="Algorithm Fields in CA Certificates">
+            <t>caAlgorithm: Omitting is only allowed when pkAlgorithm (or caAlgorithm if
+            pkAlgorithm is omitted in a superior certificate) of a superior certificate fully
+            specifies the signature algorithm and its parameters (i.e. signature and hash
+            algorithms plus any required parameters, e.g. in the case of ECC, the curve).</t>
+            <t>pkAlgorithm: If omitted in a CA certificate, caAlgorithm specifies the signature and
+            hash algorithms and any required parameters (e.g. curve) for pubKey Algorithm fields in
+            End-Entity Certificates.</t>
+        </section>
+        <section title="Algorithm Fields in End-Entity Certificates">
+            <t>caAlgorithm: Omitting is only allowed when pkAlgorithm (or caAlgorithm if
+            pkAlgorithm is omitted in a superior certificate) of a superior certificate fully
+            specifies the signature algorithm and its parameters (i.e. signature and hash
+            algorithms plus any required parameters, e,g, in the case of ECC, the curve).</t>
+            <t>pkAlgorithm: If omitted in an end entity certificate, caAlgorithm specifies the
+            required parameters (e.g. curve and optionally signature &amp; hash algorithms) for
+            pubKey.</t>
+        </section>
+    </section>
+
+    <section anchor="security_considerations" title="Security Considerations">
+        <t>The M2M Certificate Format is believed by the authors to have the same security
+        characteristics as the X.509 certificate format.</t>
+    </section>
+
+    <section anchor="iana_considerations" title="IANA Considerations">
+        <t>None known.</t>
+    </section>
+
+    <section anchor="conclusions" title="Conclusions">
+        <t>The IETF and applicable Working Groups are encouraged to adopt the M2M certificate
+        format as an optional alternative to the X.509 format in all applications in the
+        Internet-of-Things space.  There are significant size and bandwidth savings and no
+        significant loss of features of practical importance.</t>
+    </section>
+
+    <section anchor="acknowledgements" title="Acknowledgements">
+        <t>Recognition is due to Rob Lambert and Jeremy Rowley for their critical reviews of the
+        specification, and to the development team of TrustPoint Innovation Technologies for
+        their reviews and proving the specification works in practical implementations.</t>
+
+        <t>This document was prepared using xml2rfc.</t>
+    </section>
+
+</middle>
+
+<back>
+    <references title="Normative References">
+        <reference anchor="SEC4">
+            <front>
+                <title>Standards for Efficient Cryptography Group (SECG), SEC 4: Elliptic Curve
+                    Qu-Vanstone Implicit Certificates</title>
+                <author>
+                    <organization>Certicom Research</organization>
+                </author>
+                <date year="2013" month="January" />
+            </front>
+        </reference>
+
+        <reference anchor="NFC-SIG"
+            target="http://nfc-forum.org/our-work/specifications-and-application-documents/specifications/nfc-forum-technical-specifications/">
+            <front>
+                <title>Signature Record Type Definition, Technical Specification, V2.0</title>
+                <author>
+                    <organization>NFC Forum</organization>
+                </author>
+                <date year="2014" />
+            </front>
+        </reference>
+
+        <reference anchor="X.690">
+            <front>
+                <title>X.690: Information technology - ASN.1 encoding rules:
+                Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER)
+                and Distinguished Encoding Rules (DER) </title>
+                <author>
+                    <organization>ITU-T Recommendation</organization>
+                </author>
+                <date year="2002" />
+            </front>
+        </reference>
+
+        <!-- Right back at the beginning we defined an entity which would contain
+             XML needed for a reference... this is where we use it. -->
+        &rfc5280;
+    </references>
+
+    <references title="Informative References">
+        <reference anchor="TLS-M2M"
+            target="draft-ypoeluev-tls-m2m-certs-00.txt (work-in-progress)">
+            <front>
+                <title>Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS)
+                    Authentication Using M2M Certificates</title>
+                <author fullname="Yuri Poeluev" initials="Y." surname="Poeluev" />
+                <author fullname="Warwick Ford" initials="W." surname="Ford" />
+                <date year="2016" />
+            </front>
+        </reference>
+
+        <!-- Right back at the beginning we defined an entity which would contain
+             XML needed for a reference... this is where we use it. -->
+        &rfc2629;
+    </references>
+
+    <section anchor="appendix-A" title="Certificate Field Size Breakdown Tables">
+        <t>This Appendix lists the certificate field sizes used in arriving at the certificate
+        sizes in Figure 1.  Use this to check our numbers and also to see where M2M saves the
+        bytes.  Note that these calculations were all based on using DER encoding.</t>
+
+        <section title="EE Small Case">
+            <figure anchor="ee_small_case" title="EE Small Case Field Sizes in Bytes">
+                <artwork>
+<![CDATA[
++------------------------+-----------+----------+----------+
+|                        | M2M with  |    M2M   |   X.509  |
+|                        | parameter |          |          |
+|                        |inheritance|          |          |
++------------------------+-----------+----------+----------+
+|Basic envelope          |     4     |     4    |     4    |
+|Outside algorithm id    |     0     |     0    |     9    |
+|Outside algorithm params|     0     |     0    |     0    |
+|Signature/CA calc value |    65     |    65    |    66    |
+|Version                 |     0     |     0    |     5    |
+|Serial number           |    10     |    10    |    10    |
+|Inside algorithm id     |     0     |     7    |     9    |
+|Algorithm parameters    |     0     |     0    |     0    |
+|Issuer                  |     0     |    12    |    23    |
+|Validity                |    11     |    11    |    32    |
+|Subject                 |    12     |    12    |    23    |
+|Subject algorithm       |     0     |     0    |    11    |
+|Subject parameters      |     0     |     0    |     0    |
+|Subject public key      |    31     |    31    |    32    |
+|Extensions envelope     |     0     |     0    |     4    |
+|Key usage 7-bit extn    |     3     |     3    |    13    |
+|Basic constraints extn  |     0     |     0    |     0    |
+|Cert policies extn      |     0     |     0    |     0    |
+|OCSP URL extn 20-char   |     0     |     0    |     0    |
+|Subject alt name 10-char|     0     |     0    |     0    |
+|TOTAL                   |   136     |   155    |   241    |
++------------------------+-----------+----------+----------+
+]]>
+                </artwork>
+            </figure>
+        </section>
+
+        <section title="EE Medium Case">
+            <figure anchor="ee_medium_case" title="EE Medium Case Field Sizes in Bytes">
+                <artwork>
+<![CDATA[
++------------------------+-----------+----------+----------+
+|                        | M2M with  |    M2M   |   X.509  |
+|                        | parameter |          |          |
+|                        |inheritance|          |          |
++------------------------+-----------+----------+----------+
+|Basic envelope          |     4     |     4    |     4    |
+|Outside algorithm id    |     0     |     0    |     9    |
+|Outside algorithm params|     0     |     0    |     0    |
+|Signature/CA calc value |    65     |    65    |    66    |
+|Version                 |     0     |     0    |     5    |
+|Serial number           |    10     |    10    |    10    |
+|Inside algorithm id     |     0     |     7    |     9    |
+|Algorithm parameters    |     0     |     0    |     0    |
+|Issuer                  |     0     |    22    |    42    |
+|Validity                |    11     |    11    |    32    |
+|Subject                 |    22     |    22    |    42    |
+|Subject algorithm       |     0     |     0    |    11    |
+|Subject parameters      |     0     |     0    |     0    |
+|Subject public key      |    31     |    31    |    32    |
+|Extensions envelope     |     0     |     0    |     4    |
+|Key usage 7-bit extn    |     3     |     3    |    13    |
+|Basic constraints extn  |     0     |     0    |     0    |
+|Cert policies extn      |     7     |     7    |    20    |
+|OCSP URL extn 20-char   |    22     |    22    |    42    |
+|Subject alt name 10-char|    14     |    14    |    23    |
+|TOTAL                   |   189     |   218    |   364    |
++------------------------+-----------+----------+----------+
+]]>
+                </artwork>
+            </figure>
+        </section>
+
+        <section title="CA Certificate Case">
+            <figure anchor="ca_certificate_case" title="EE Medium Case Field Sizes in Bytes">
+                <artwork>
+<![CDATA[
++------------------------+-----------+----------+----------+
+|                        | M2M with  |    M2M   |   X.509  |
+|                        | parameter |          |          |
+|                        |inheritance|          |          |
++------------------------+-----------+----------+----------+
+|Basic envelope          |    N/A    |     4    |     4    |
+|Outside algorithm id    |           |     0    |     9    |
+|Outside algorithm params|           |     0    |     0    |
+|Signature/CA calc value |           |    65    |    66    |
+|Version                 |           |     0    |     5    |
+|Serial number           |           |    10    |    10    |
+|Inside algorithm id     |           |     7    |     9    |
+|Algorithm parameters    |           |     0    |     0    |
+|Issuer                  |           |    22    |    42    |
+|Validity                |           |    11    |    32    |
+|Subject                 |           |    22    |    42    |
+|Subject algorithm       |           |     7    |    11    |
+|Subject parameters      |           |     0    |     0    |
+|Subject public key      |           |    31    |    32    |
+|Extensions envelope     |           |     0    |     4    |
+|Key usage 7-bit extn    |           |     3    |    13    |
+|Basic constraints extn  |           |     3    |    17    |
+|Cert policies extn      |           |     0    |     0    |
+|OCSP URL extn 20-char   |           |    22    |    42    |
+|Subject alt name 10-char|           |     0    |     0    |
+|TOTAL                   |           |   207    |   338    |
++------------------------+-----------+----------+----------+
+]]>
+                </artwork>
+            </figure>
+        </section>
+    </section>
+</back>
+
+</rfc>

@@ -1,0 +1,142 @@
+apply plugin: 'java'
+apply plugin: 'findbugs'
+apply plugin: "jacoco"
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+def libVersion = '1.0.0'
+def libTitle = 'TrustPoint M2M Certificate Library'
+
+buildscript {
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'net.sf.proguard:proguard-gradle:5.2.1'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+
+    test {
+        java {
+            srcDir 'test'
+        }
+    }
+}
+
+dependencies {
+    compile 'org.bouncycastle:bcprov-jdk15on:1.54'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.54'
+    compile 'junit:junit:4.11'
+}
+
+jar {
+    baseName = 'tpm2m'
+    version = libVersion
+
+    manifest {
+        attributes 'Implementation-Title': libTitle,
+                   'Implementation-Version': version
+    }
+}
+
+javadoc {
+    title libTitle + ' ' + libVersion
+    failOnError false
+}
+
+task copyDependencies(type: Copy) {
+
+    File dependencies = new File("dependencies")
+    if (dependencies.exists()) {
+        def command = "rm -Rf dependencies"
+        command.execute()
+    }
+
+    from configurations.compile
+    into 'dependencies'
+}
+
+task proguard(type: proguard.gradle.ProGuardTask, dependsOn: copyDependencies) {
+    dependsOn 'jar'
+
+    injars jar.property('outputs')
+    outjars 'build/proguard/' + jar.property('archiveName')
+
+    libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+    libraryjars "./dependencies/bcprov-jdk15on-1.54.jar"
+    libraryjars "./dependencies/bcpkix-jdk15on-1.54.jar"
+
+    printmapping 'proguard.map'
+
+    keep 'class com.trustpoint.m2m.* { \
+              *; \
+          }'
+
+    // Keep - Enumerations. Keep the special static methods that are required in
+    // enumeration classes.
+    keepclassmembers 'enum  * { \
+                          public static **[] values(); \
+                          public static ** valueOf(java.lang.String); \
+                      }'
+
+    keepattributes 'InnerClasses'
+    keepattributes 'Signature'
+}
+
+test {
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: ${descriptor}")
+    }
+    testLogging {
+        //show that tests are run
+        events 'started', 'passed', 'standard_out', 'standard_error'
+    }
+    reports {
+        junitXml.enabled = true
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.13'
+}
+
+//findbugs configuration
+findbugs {
+    toolVersion = "2.0.3"
+    reportsDir = file("$project.buildDir/reports/findbugs")
+    ignoreFailures = false
+    effort = "max"
+    reportLevel = "high"
+}
+
+//JaCoCo code coverage configurtion
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$project.buildDir/reports/JaCoCo")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "$project.buildDir/reports/JaCoCo"
+    }
+}
+
+//TODO: Add support for checkstyle once issues with JDK 1.6 are resolved
+//TODO: Add support for PMD once ruleSetConfig file is created
+

@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY rfc2629 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2629.xml">
+<!ENTITY rfc5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
+<!ENTITY rfc5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
+<!ENTITY rfc5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
+<!ENTITY rfc6091 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6091.xml">
+<!ENTITY rfc6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
+<!ENTITY rfc7250 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7250.xml">
+]>
+
+<!-- Extra statement used by XSLT processors to control the output style. -->
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+
+<!-- Processing Instructions can be placed here but if you are editing
+     with XMLmind (and maybe other XML editors) they are better placed
+     after the rfc element start tag as shown below. -->
+
+<!-- Information about the document.
+     category values: std, bcp, info, exp, and historic
+     For Internet-Drafts, specify attribute "ipr".
+     (ipr values are: full3667, noModification3667, noDerivatives3667),
+     Also for Internet-Drafts, can specify values for
+     attributes "docName" and, if relevant, "iprExtract".  Note
+     that the value for iprExtract is the anchor attribute
+     value of a section (such as a MIB specification) that can be
+     extracted for separate publication, and is only
+     useful whenhe value of "ipr" is not "full3667". -->
+    <!-- TODO: verify which attributes are specified only
+               by the RFC editor.  It appears that attributes
+               "number", "obsoletes", "updates", and "seriesNo"
+               are specified by the RFC editor (and not by
+               the document author). -->
+<rfc category="std" ipr="noModificationTrust200902" docName="draft-ypoeluev-tls-m2m-certs-01.txt">
+    <!-- Processing Instructions- PIs (for a complete list and description,
+          see file http://xml.resource.org/authoring/README.html and below... -->
+
+    <!-- Some of the more generally applicable PIs that most I-Ds might want to use -->
+
+    <!-- Try to enforce the ID-nits conventions and DTD validity -->
+    <?rfc strict="yes" ?>
+
+    <!-- Items used when reviewing the document -->
+    <?rfc comments="no" ?>  <!-- Controls display of <cref> elements -->
+    <?rfc inline="no" ?>    <!-- When no, put comments at end in comments section,
+                                 otherwise, put inline -->
+    <?rfc editing="no" ?>   <!-- When yes, insert editing marks: editing marks consist of a
+                                 string such as <29> printed in the blank line at the
+                                 beginning of each paragraph of text. -->
+
+    <!-- Create Table of Contents (ToC) and set some options for it.
+         Note the ToC may be omitted for very short documents,but idnits insists on a ToC
+         if the document has more than 15 pages. -->
+   <?rfc toc="yes"?>
+   <?rfc tocompact="yes"?> <!-- If "yes" eliminates blank lines before main section entries. -->
+   <?rfc tocdepth="3"?>    <!-- Sets the number of levels of sections/subsections... in ToC -->
+
+    <!-- Choose the options for the references.
+         Some like symbolic tags in the references (and citations) and others prefer
+         numbers. The RFC Editor always uses symbolic tags.
+         The tags used are the anchor attributes of the references. -->
+    <?rfc symrefs="yes"?>
+    <?rfc sortrefs="yes" ?> <!-- If "yes", causes the references to be sorted in order of tags.
+                                 This doesn't have any effect unless symrefs is "yes" also. -->
+
+    <!-- These two save paper: Just setting compact to "yes" makes savings by not starting each
+         main section on a new page but does not omit the blank lines between list items.
+         If subcompact is also "yes" the blank lines between list items are also omitted. -->
+    <?rfc compact="yes" ?>
+    <?rfc subcompact="no" ?>
+    <!-- end of list of popular I-D processing instructions -->
+
+    <!-- ***** FRONT MATTER ***** -->
+<front>
+    <!-- The abbreviated title is used in the page header - it is only necessary if the
+         full title is longer than 42 characters -->
+    <title abbrev="TLS/DTLS Auth Using M2M Certs">Transport Layer Security (TLS) and Datagram
+        Transport Layer Security (DTLS) Authentication Using M2M Certificate</title>
+
+    <author fullname="Yuri Poeluev" initials="Y." surname="Poeluev">
+        <address>
+            <email>ypoeluev@gmail.com</email>
+        </address>
+    </author>
+
+    <author fullname="Jason Smith" initials="J." surname="Smith">
+        <organization abbrev="TrustPoint Innovation Technologies">TrustPoint Innovation
+            Technologies, Ltd.</organization>
+        <address>
+            <postal>
+                <street>450 Phillip Street</street>
+                <street>Suite 101</street>
+                <city>Waterloo</city>
+                <region>ON</region>
+                <code>N2L 5J2</code>
+                <country>CA</country>
+            </postal>
+            <email>jsmith@trustpointinnovation.com</email>
+        </address>
+    </author>
+
+    <author fullname="Warwick Ford" initials="W." surname="Ford">
+        <organization abbrev="TrustPoint Innovation Technologies">TrustPoint Innovation
+            Technologies, Ltd.</organization>
+        <address>
+            <postal>
+                <street>450 Phillip Street</street>
+                <street>Suite 101</street>
+                <city>Waterloo</city>
+                <region>ON</region>
+                <code>N2L 5J2</code>
+                <country>CA</country>
+            </postal>
+            <email>wford@wyltan.com</email>
+        </address>
+    </author>
+
+    <date year="2016" />
+
+    <!-- Meta-data Declarations -->
+
+    <!-- WG name at the upperleft corner of the doc,
+         IETF fine for individual submissions.  You can also
+         omit this element in which case in defaults to "Network Working Group" -
+         a hangover from the ancient history of the IETF! -->
+    <workgroup>Transport Layer Security</workgroup>
+
+    <abstract>
+        <t>This memo defines Transport Layer Security (TLS) extensions and associated semantics
+        that allow clients and servers to negotiate the use of M2M certificates for a TLS/DTLS
+        session, and specifies how to transport M2M certificates via TLS/DTLS.  It also defines
+        the registry for non-X.509 certificate types.</t>
+
+        <t>The X.509 public key certificate format is overly verbose for Internet-of-Things (IoT)
+        constrained environments, where nodes with limited memory and networks with limited
+        bandwidth are not uncommon.  The Machine-to-Machine (M2M) certificate format is a pruned
+        down and encoding-optimized replacement for X.509, which reuses much of the X.509 semantics
+        but reduces certificate sizes by typically 40%.</t>
+    </abstract>
+</front>
+
+<middle>
+    <section anchor="introduction" title="Introduction">
+        <t>This document specifies a way to negotiate the use of M2M certificates [M2M-CER] for a
+        TLS/DTLS session, and specifies how to transport M2M certificates via TLS/DTLS.  The
+        proposed extensions are backward compatible with the current TLS/DTLS specification, so
+        that existing client and server implementations that make use of X.509 certificates are not
+        affected.</t>
+
+        <t>The predominant public key certificate format has for many years been the X.509 format
+        [RFC5280].  X.509 was designed to be extremely flexible and open-ended, in an environment
+        of RSA and DSA signature technologies.  X.509 is not, however, a good certificate format
+        for Internet-of-Things constrained environments, where nodes with limited memory and
+        networks with limited bandwidth are not uncommon.  With RSA and DSA technologies, overheads
+        in the certificate format were comparatively inconsequential because the large key and
+        signature fields were the dominant certificate components size-wise.  However, with the
+        much more efficient ECC technology used today, the certificate format overheads become a
+        very important factor in making certificates efficient enough for low bandwidth constrained
+        applications.  In essence, the X.509 certificate format is too verbose for these
+        applications.</t>
+
+        <t>The Machine-to-Machine (M2M) certificate format was designed to satisfy the above
+        objectives.  Essentially what was done was to strip down the X.509 format to eliminate
+        features that are not needed today, while optimizing the encoding.  The result is a
+        certificate format that typically reduces certificate size by about 40% compared with
+        X.509.</t>
+
+        <t>The M2M certificate format has been adopted by the NFC Forum for Near Field
+        Communications (NFC) signatures, and published by that organization [NFC-SIG].  However it
+        is a general-purpose design, which is equally applicable to Internet-of-Things (IoT)
+        applications.</t>
+
+        <t>We are proposing that IETF recognize the M2M format as an optional replacement for X.509
+        in TLS Protocol [RFC5246] and DTLS Protocol [RFC6347] specifications.  A companion
+        Internet-Draft defines the M2M format [M2M-CER].</t>
+
+        <t>This draft has been updated in conjunction with the companion draft [M2M-CER].  Changes
+        were made to the M2M specification to promote consistency in the formal ASN.1
+        specifications.  This draft was also re-written using XML2RFC [RFC2629]. There are no other
+        changes from the previous version of this draft.</t>
+    </section>
+
+    <section anchor="terminology" title="Terminology">
+        <t>This document uses the same notation and terminology used in the TLS Protocol
+        specification [RFC5246] and DTLS Protocol specification [RFC6347].</t>
+
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD
+        NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as
+        described in [RFC2119].</t>
+    </section>
+
+    <section anchor="changes_to_the_handshake_message_contents"
+        title="Changes to the Handshake Message Contents">
+        <t>This section describes the changes to the TLS/DTLS handshake message contents when M2M
+        certificates are to be used for authentication. When the document refers to the TLS
+        extensions [RFC5246], the same extensions may be used for the DTLS handshake.</t>
+
+        <section anchor="client_hello" title="Client Hello">
+            <t>In order to indicate the support of multiple certificate types, clients MUST include
+            an extension of type "cert_type" to the extended client hello message.  The "cert_type"
+            TLS extension is assigned the value of 9 from the TLS ExtensionType registry.  This
+            value is used as the extension number for the extensions in both the client hello
+            message and the server hello message.  The hello extension mechanism is described in
+            [RFC5246].</t>
+
+            <t>This extension carries a list of supported certificate types the client can use,
+            sorted by client preference.  This extension MUST be omitted if the client only
+            supports X.509 certificates.  The "extension_data" field of this extension contains a
+            CertificateTypeExtension structure.  Note that the CertificateTypeExtension structure
+            is being used both by the client and the server, even though the structure is only
+            specified once in this document.  Reusing a single specification for both client and
+            server is common in other specifications, such as the TLS protocol itself [RFC5246].</t>
+
+            <figure>
+                <artwork>
+<![CDATA[
+    enum { client, server } ClientOrServerExtension;
+
+    enum { X.509(0), OpenPGP(1), RawPublicKey(2), M2M(3), (255) }
+        CertificateType;
+
+    struct {
+         select(ClientOrServerExtension) {
+            case client:
+               CertificateType certificate_types<1..2^8-1>;
+            case server:
+               CertificateType certificate_type;
+         }
+      } CertificateTypeExtension;
+]]>
+                </artwork>
+            </figure>
+
+            <t>No new cipher suites are required to use M2M certificates.  All existing cipher
+            suites that support a key exchange method compatible with the key in the certificate
+            can be used in combination with M2M certificates.</t>
+        </section>
+
+        <section anchor="server-hello" title="Server Hello">
+            <t>If the server receives a client hello that contains the "cert_type" extension and
+            chooses a cipher suite that requires a certificate, then two outcomes are possible.  The
+            server MUST either select a certificate type from the certificate_types field in the
+            extended client hello or terminate the session with a fatal alert of type
+            "unsupported_certificate".</t>
+
+            <t>The certificate type selected by the server is encoded in a CertificateTypeExtension
+            structure, which is included in the extended server hello message using an extension of
+            type "cert_type".  Servers that only support X.509 certificates MAY omit including the
+            "cert_type" extension in the extended server hello.</t>
+        </section>
+
+        <section anchor="server-and-client-certificates" title="Server and Client Certificates">
+            <t>The contents of the certificate message sent from server to client and vice versa
+            are determined by the negotiated certificate type and the selected cipher suite's key
+            exchange algorithm.</t>
+
+            <t>When present in the TLS/DTLS handshake, M2M certificates must be encoded using
+            Distinguished Encoding Rules (DER) [X.680].</t>
+
+            <t>To carry the M2M certificate within the TLS/DTLS handshake, the Certificate payload
+            is used as a container, as shown in Figure 1.  The shown Certificate structure is an
+            adaptation of its original form [RFC5246].</t>
+
+            <figure anchor="certificate_payload_as_a_container_for_the_m2m_certificate"
+                title="Certificate Payload as a Container for the M2M certificate">
+                <artwork>
+<![CDATA[
+    opaque ASN.1Cert<1..2^24-1>;
+
+    struct {
+        select(certificate_type) {
+        // M2M certificate type defined [M2M-CER]
+        case M2M:
+            ASN.1Cert m2m_certificate_list<0..2^24-1>;
+
+        // X.509 certificate defined in [RFC5246]
+        case X.509:
+           ASN.1Cert certificate_list<0..2^24-1>;
+        // Additional certificate type based on
+        // "TLS Certificate Types" subregistry
+     };
+    } Certificate;
+      ]]>
+                </artwork>
+            </figure>
+        </section>
+
+        <section anchor="other_handshake_messages" title="Other Handshake Messages">
+            <t>All the other handshake messages are identical to the TLS/DTLS specifications,
+            [RFC5246]/[RFC6347].</t>
+        </section>
+    </section>
+
+    <section anchor="security_considerations" title="Security Considerations">
+        <t>All security considerations discussed in [RFC5246], [RFC6066], and [RFC4880] apply to
+        this document.  Considerations about the use of the web of trust or identity and
+        certificate verification procedures are outside the scope of this document.  These are
+        considered issues to be handled by the application layer protocols.</t>
+
+        <t>The protocol for certificate type negotiation is identical in operation to cipher suite
+        negotiation as described in the TLS specification [RFC5246], with the addition of default
+        values when the extension is omitted.  Since those omissions have a unique meaning and the
+        same protection is applied to the values as with cipher suites, it is believed that the
+        security properties of this negotiation are the same as with cipher suite negotiation.</t>
+    </section>
+
+    <section anchor="iana_considerations" title="IANA Considerations">
+        <t>This document uses a registry and the "cert_type" extension originally defined in
+        [RFC6091].  In order to support M2M certificates the "TLS Certificate Types" registry
+        established by [RFC6091] and [RFC7250] will need to be updated in the following ways:
+            <list style="numbers">
+                <t>Value 0 (X.509), value 1 (OpenPGP), value 2 (RawPublicKey), and value 3 (M2M)
+                are defined in this document.</t>
+                <t>Values from 4 through 223 decimal inclusive are assigned via "RFC Required"
+                [RFC5226].</t>
+                <t>Values from 224 decimal through 255 decimal inclusive are reserved for Private
+                Use [RFC5226].</t>
+            </list>
+        </t>
+    </section>
+
+    <section anchor="conclusions" title="Conclusions">
+        <t>The IETF, Transport Layer Security and other applicable Working Groups are encouraged to
+        adopt the M2M certificate format as an optional alternative to the X.509 format in all
+        applications in the Internet-of-Things space.  There are significant size and bandwidth
+        savings and no significant loss of features of practical importance.</t>
+    </section>
+
+    <section anchor="acknowledgements" title="Acknowledgements">
+        <t>Recognition is due to Rob Lambert for his critical reviews of the specification.</t>
+
+        <t>This document was prepared using xml2rfc.</t>
+    </section>
+</middle>
+
+<back>
+    <references title="Normative References">
+        <reference anchor="NFC-SIG"
+            target="http://nfc-forum.org/our-work/specifications-and-application-documents/specifications/nfc-forum-technical-specifications/">
+            <front>
+                <title>Signature Record Type Definition, Technical Specification, V2.0</title>
+                <author>
+                    <organization>NFC Forum</organization>
+                </author>
+                <date year="2014" />
+            </front>
+        </reference>
+
+        <reference anchor="X.690">
+            <front>
+                <title>X.690: Information technology - ASN.1 encoding rules:
+                Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER)
+                and Distinguished Encoding Rules (DER) </title>
+                <author>
+                    <organization>ITU-T Recommendation</organization>
+                </author>
+                <date year="2002" />
+            </front>
+        </reference>
+
+        <!-- Right back at the beginning we defined an entity which would contain
+             XML needed for a reference... this is where we use it. -->
+        &rfc5226;
+        &rfc5246;
+        &rfc5280;
+        &rfc6091;
+        &rfc6347;
+        &rfc7250;
+    </references>
+
+    <references title="Informative References">
+        <reference anchor="M2M-CER"
+            target="draft-ford-m2mcertificate-01.txt (work-in-progress)">
+            <front>
+                <title>The Machine-to-Machine (M2M) Public Key Certificate Format</title>
+                <author fullname="Jason Smith" initials="J." surname="Smith" />
+                <author fullname="Warwick Ford" initials="W." surname="Ford" />
+                <author fullname="Yuri Poeluev" initials="Y." surname="Poeluev" />
+                <date year="2016" />
+            </front>
+        </reference>
+
+        <!-- Right back at the beginning we defined an entity which would contain
+             XML needed for a reference... this is where we use it. -->
+        &rfc2629;
+    </references>
+</back>
+
+</rfc>

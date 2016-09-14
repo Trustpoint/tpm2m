@@ -1,0 +1,15 @@
+*.class
+.DS_Store
+.gradle/
+.settings/
+
+# Package Files #
+*.war
+*.ear
+
+build/
+dist/
+testbuild/
+local.properties
+proguard.map
+/target/
